@@ -1,2 +1,1 @@
-cookie : https://www.geeksforgeeks.org/websites-apps/understanding-cookies-in-web-browsers/
-jwt : https://www.geeksforgeeks.org/json-web-token-jwt/
+
