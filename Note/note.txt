@@ -1,12 +1,1 @@
-cookie : https://www.geeksforgeeks.org/websites-apps/understanding-cookies-in-web-browsers/
-jwt : https://www.geeksforgeeks.org/json-web-token-jwt/
-api_versoning : https://medium.com/@apicraft/understanding-api-versioning-best-practices-and-strategies-419f3297b52a
-        https://www.geeksforgeeks.org/system-design/differences-between-api-versioning-and-backward-compatibility-in-system-design/
 
-node_mailer :  https://nodemailer.com/   
-
-Brav0 -> smtp and api -> 
-
-frontend ->
-outfit google font used 
-->getFont -> import -> copy link also  copy fontfamily 
