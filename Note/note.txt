@@ -6,3 +6,7 @@ api_versoning : https://medium.com/@apicraft/understanding-api-versioning-best-p
 node_mailer :  https://nodemailer.com/   
 
 Brav0 -> smtp and api -> 
+
+frontend ->
+outfit google font used 
+->getFont -> import -> copy link also  copy fontfamily 

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import UserModel from "../model/UserModel.js"
 import transporter from "../config/nodeMailer.js"
+import userModel from "../model/UserModel.js"
 
 export const register = async(req , res) =>{
     const {name , email, password} = req.body ;
@@ -266,4 +267,114 @@ export const isAuthenticated = async(req , res)=>{
     }
 }
 
+//send password reset otp
+export const sendResetOtp = async(req , res) =>{
+    const {email} = req.body ;
+    if(!email){
+        return res.json({
+            success : false ,
+            message : "No email found Please Insure you have registered before reset ."
+        })
+    }
+
+    //verify user exist first
+    //generate new otp using random function reset new otp into db
+    //send it to the mail 
+    try{
+        //verify user exist first
+        const user = await userModel.findOne({email}) ;
+        if(!user){
+            return res.json({
+                success : false ,
+                message : "No user found with this email" 
+            })
+        }
+        
+        const otp = String(Math.floor(100000 + Math.random() * 900000))
+        user.resetOtp = otp ;
+        user.resetOtpExpireAt = Date.now() + 15*60*1000 
+
+        await user.save() ;
+
+        //now send otp to user
+        //1.create mailOptions
+        const mailOptions = {
+            //sender email in env
+            from : process.env.SENDER_EMAIL,
+            to : user.email ,   //to the mail presend in request body
+            subject : "Password Reset OTP ",
+            text : `Your otp for reseting you password ${otp}`
+        }
+
+
+        //2 . send the email
+        transporter.sendMail(mailOptions)
+        res.json({
+            success : true ,
+            message : "Otp send to user email "
+        })
+
+
+    }catch(err){
+        return res.json({
+            success : false ,
+            message : err.message
+        })
+    }
+}
+
+//verifyOtp and reset user password
+
+export const resetPassword = async(req , res) =>{
+    const {email , otp , newPassword} = req.body ;
+    if(!email || !otp || !newPassword){
+        return res.json({
+            success : false ,
+            message : "Insufficient data"
+        })
+    } 
+
+    try{
+        const user = await userModel.findOne({email}) ;
+        if(!user){
+            return res.json({
+                success : false ,
+                message : "No user found with this email" 
+            })
+        }
+
+        if(user.resetOtp == "" || user.resetOtp != otp){
+            return res.json({
+                success : false ,
+                message : "Invald Otp"
+            })
+        }
+
+        if(user.resetOtpExpireAt < Date.now()){
+            return res.json({
+                success : false ,
+                message : "Otp Expired"
+            })
+        }
+
+        //encrypt password
+        const hashPassword = await bcrypt.hash(newPassword , 10) ;
+        user.password = hashPassword ;
+
+        //now work is done again rest otp to default value 
+        user.resetOtp = "" 
+        user.resetOtpExpireAt = 0
+
+        await user.save()
+        res.json({
+            success : true ,
+            message : "Password Reset Successfully"
+        })
+    }catch(err){
+        return res.json({
+            success : false ,
+            message : err.message
+        })
+    }
+}
 
